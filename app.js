@@ -25,11 +25,16 @@ function percentage(percent, total) {
         const bitOrders = document.getElementsByClassName("orderbook-bid")[0];
         const askOrders = document.getElementsByClassName("orderbook-ask")[0];
         let buyPrice;
+        let buyPriceStep;
         let buyAmount;
         let buyAmountStepPrecision;
         let sellPrice;
+        let sellPriceStep;
         let sellAmount;
         let sellAmountStepPrecision;
+
+        // Add UI
+        const orderForm = document.getElementsByName("orderform")[0];
 
         let checkboxContainerB = document.createElement("div");
         let checkboxB = document.createElement("input");
@@ -40,10 +45,10 @@ function percentage(percent, total) {
         checkboxB.setAttribute('style', 'display: inline;')
         checkboxContainerB.appendChild(checkboxB);
         let textB = document.createElement("div");
-        textB.innerHTML = "Auto Bid Price";
+        textB.innerHTML = "Auto Buy Price";
         textB.setAttribute('style', 'display: inline;')
         checkboxContainerB.appendChild(textB);
-        document.getElementsByName("orderform")[0].appendChild(checkboxContainerB);
+        orderForm.appendChild(checkboxContainerB);
 
         let checkboxContainerA = document.createElement("div");
         let checkboxA = document.createElement("input");
@@ -54,27 +59,46 @@ function percentage(percent, total) {
         checkboxA.setAttribute('style', 'display: inline;')
         checkboxContainerA.appendChild(checkboxA);
         let textA = document.createElement("div");
-        textA.innerHTML = "Auto Ask Price";
+        textA.innerHTML = "Auto Sell Price";
         textA.setAttribute('style', 'display: inline;')
         checkboxContainerA.appendChild(textA);
-        document.getElementsByName("orderform")[0].appendChild(checkboxContainerA);
+        orderForm.appendChild(checkboxContainerA);
+
+        let checkboxContainerS = document.createElement("div");
+        let checkboxS = document.createElement("input");
+        checkboxS.setAttribute("id", "auto-price-checkbox");
+        checkboxS.setAttribute("type", "checkbox");
+        checkboxS.setAttribute("value", true);
+        checkboxS.setAttribute("name", "Auto Price");
+        checkboxS.setAttribute('style', 'display: inline;')
+        checkboxContainerS.appendChild(checkboxS);
+        let textS = document.createElement("div");
+        textS.innerHTML = "Increment/Decrement 1 step";
+        textS.setAttribute('style', 'display: inline;')
+        checkboxContainerS.appendChild(textS);
+        orderForm.appendChild(checkboxContainerS);
+        // End UI
 
         var bitOrdersObserver = new MutationObserver(function (mutationsList) {
             if (checkboxB.checked) {
                 const bitBestOrder = bitOrders.getElementsByClassName("row-content")[0];
-                const bitBestOrderPrice = bitBestOrder.children[0].innerHTML;
+                const bitBestOrderPrice = parseFloat(bitBestOrder.children[0].innerHTML);
                 if (!buyPrice) {
                     buyPrice = document.getElementById("FormRow-BUY-price");
+                    buyPriceStep = parseFloat(buyPrice.getAttribute('step'));
                     buyAmount = document.getElementById("FormRow-BUY-quantity");
                     buyAmountStepPrecision = buyAmount.getAttribute('step').split('1')[0].replace('.', '').length
                 }
-                buyPrice.value = bitBestOrderPrice;
-                console.log('bit order ', bitBestOrderPrice);
-
+                let buyOrderPrice = bitBestOrderPrice;
+                if (checkboxS.checked) {
+                    buyOrderPrice = buyOrderPrice + buyPriceStep;
+                }
+                buyPrice.value = buyOrderPrice;
+                console.log('buy price order ', buyPrice.value);
 
                 const buyPercent = parseFloat(document.getElementsByClassName("bn-slider-radio-tooltip")[0].innerHTML.trimEnd("%"));
                 const buyAval = parseFloat(document.getElementsByClassName("proInnerForm")[0].children[1].children[0].lastChild.children[0].innerHTML.split());
-                buyAmount.value = percentage(buyPercent, buyAval / parseFloat(bitBestOrderPrice)).toFixed(buyAmountStepPrecision);
+                buyAmount.value = percentage(buyPercent, buyAval / buyOrderPrice).toFixed(buyAmountStepPrecision);
                 console.log('buyPercent', buyPercent);
                 console.log('buyAval', buyAval);
                 console.log('buyAmount', buyAmount.value);
@@ -87,15 +111,19 @@ function percentage(percent, total) {
             if (checkboxA.checked) {
                 const rows = askOrders.getElementsByClassName("row-content");
                 const askBestOrder = rows[rows.length - 1];
-                const askBestOrderPrice = askBestOrder.children[0].innerHTML;
+                const askBestOrderPrice = parseFloat(askBestOrder.children[0].innerHTML);
                 if (!sellPrice) {
                     sellPrice = document.getElementById("FormRow-SELL-price");
+                    sellPriceStep = parseFloat(sellPrice.getAttribute('step'));
                     sellAmount = document.getElementById("FormRow-SELL-quantity");
                     sellAmountStepPrecision = sellAmount.getAttribute('step').split('1')[0].replace('.', '').length
                 }
-                sellPrice.value = askBestOrderPrice;
-                console.log('ask order ', askBestOrderPrice);
-
+                let sellOrderPrice = askBestOrderPrice;
+                if (checkboxS.checked) {
+                    sellOrderPrice = sellOrderPrice + sellPriceStep;
+                }
+                sellPrice.value = sellOrderPrice;
+                console.log('sell order ', sellPrice.value);
 
                 const sellPercent = parseFloat(document.getElementsByClassName("bn-slider-radio-tooltip")[1].innerHTML.trimEnd("%"));
                 const sellAval = parseFloat(document.getElementsByClassName("proInnerForm")[1].children[1].children[0].lastChild.children[0].innerHTML.split());
