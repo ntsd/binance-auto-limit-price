@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         binance-force-trade
+// @name         binance-auto-limit-price
 // @namespace    http://ntsd.dev
 // @version      0.1
 // @description  Auto change price and abount to market price for limit position
