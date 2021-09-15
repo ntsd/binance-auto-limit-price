@@ -10,14 +10,14 @@
 // ==/UserScript==
 
 function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 function percentage(percent, total) {
-    return ((percent/ 100) * total).toFixed(2)
+    return (percent / 100) * total
 }
 
-(function() {
+(function () {
     'use strict';
 
     // wait content loaded
@@ -25,9 +25,11 @@ function percentage(percent, total) {
         const bitOrders = document.getElementsByClassName("orderbook-bid")[0];
         const askOrders = document.getElementsByClassName("orderbook-ask")[0];
         let buyPrice;
-        let buyAmount
+        let buyAmount;
+        let buyAmountStepPrecision;
         let sellPrice;
         let sellAmount;
+        let sellAmountStepPrecision;
 
         let checkboxContainerB = document.createElement("div");
         let checkboxB = document.createElement("input");
@@ -57,13 +59,14 @@ function percentage(percent, total) {
         checkboxContainerA.appendChild(textA);
         document.getElementsByName("orderform")[0].appendChild(checkboxContainerA);
 
-        setInterval(function(){
+        var bitOrdersObserver = new MutationObserver(function (mutationsList) {
             if (checkboxB.checked) {
                 const bitBestOrder = bitOrders.getElementsByClassName("row-content")[0];
                 const bitBestOrderPrice = bitBestOrder.children[0].innerHTML;
                 if (!buyPrice) {
                     buyPrice = document.getElementById("FormRow-BUY-price");
                     buyAmount = document.getElementById("FormRow-BUY-quantity");
+                    buyAmountStepPrecision = buyAmount.getAttribute('step').split('1')[0].replace('.', '').length
                 }
                 buyPrice.value = bitBestOrderPrice;
                 console.log('bit order ', bitBestOrderPrice);
@@ -71,11 +74,16 @@ function percentage(percent, total) {
 
                 const buyPercent = parseFloat(document.getElementsByClassName("bn-slider-radio-tooltip")[0].innerHTML.trimEnd("%"));
                 const buyAval = parseFloat(document.getElementsByClassName("proInnerForm")[0].children[1].children[0].lastChild.children[0].innerHTML.split());
-                buyAmount.value = Math.floor(percentage(buyPercent, buyAval / parseFloat(bitBestOrderPrice)));
+                buyAmount.value = percentage(buyPercent, buyAval / parseFloat(bitBestOrderPrice)).toFixed(buyAmountStepPrecision);
                 console.log('buyPercent', buyPercent);
                 console.log('buyAval', buyAval);
                 console.log('buyAmount', buyAmount.value);
+                console.log('buyAmountStepPrecision', buyAmountStepPrecision)
             }
+        });
+        bitOrdersObserver.observe(bitOrders, { attributes: true, childList: true, subtree: true });
+
+        var askOrdersObserver = new MutationObserver(function (mutationsList) {
             if (checkboxA.checked) {
                 const rows = askOrders.getElementsByClassName("row-content");
                 const askBestOrder = rows[rows.length - 1];
@@ -83,6 +91,7 @@ function percentage(percent, total) {
                 if (!sellPrice) {
                     sellPrice = document.getElementById("FormRow-SELL-price");
                     sellAmount = document.getElementById("FormRow-SELL-quantity");
+                    sellAmountStepPrecision = sellAmount.getAttribute('step').split('1')[0].replace('.', '').length
                 }
                 sellPrice.value = askBestOrderPrice;
                 console.log('ask order ', askBestOrderPrice);
@@ -90,11 +99,13 @@ function percentage(percent, total) {
 
                 const sellPercent = parseFloat(document.getElementsByClassName("bn-slider-radio-tooltip")[1].innerHTML.trimEnd("%"));
                 const sellAval = parseFloat(document.getElementsByClassName("proInnerForm")[1].children[1].children[0].lastChild.children[0].innerHTML.split());
-                sellAmount.value = Math.floor(percentage(sellPercent, sellAval));
+                sellAmount.value = percentage(sellPercent, sellAval).toFixed(sellAmountStepPrecision);
                 console.log('sellPercent', sellPercent);
                 console.log('sellAval', sellAval);
                 console.log('sellAmount', sellAmount.value);
+                console.log('sellAmountStepPrecision', sellAmountStepPrecision)
             }
-        }, 500);
+        });
+        askOrdersObserver.observe(askOrders, { attributes: true, childList: true, subtree: true });
     });
 })();
