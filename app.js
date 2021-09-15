@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         binance-auto-limit-price
-// @namespace    http://ntsd.dev
+// @namespace    https://ntsd.dev
 // @version      0.1
 // @description  A Binance extension to auto change limit price to the best ask/bid orders.
-// @author       ntsd
+// @author       Jirawat Boonkumnerd (@ntsd)
 // @match        https://www.binance.com/en/trade/*?layout=pro
 // @icon         https://www.google.com/s2/favicons?domain=binance.com
 // @grant        none
@@ -116,7 +116,7 @@ function percentage(percent, total) {
             }
             let sellOrderPrice = askBestOrderPrice;
             if (checkboxS.checked) {
-                sellOrderPrice += sellPriceStep;
+                sellOrderPrice -= sellPriceStep;
             }
             sellPrice.value = sellOrderPrice;
             console.log('sell price', sellOrderPrice);
