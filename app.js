@@ -20,7 +20,7 @@ function percentage(percent, total) {
 (function () {
     'use strict';
 
-    // wait content loaded
+    // wait content loaded delay 10 sec
     sleep(10000).then(() => {
         const bitOrders = document.getElementsByClassName("orderbook-bid")[0];
         const askOrders = document.getElementsByClassName("orderbook-ask")[0];
@@ -77,51 +77,52 @@ function percentage(percent, total) {
         orderForm.appendChild(checkboxContainerS);
         // End UI
 
-        var bitOrdersObserver = new MutationObserver(function (mutationsList) {
-            if (checkboxB.checked) {
-                const bitBestOrder = bitOrders.getElementsByClassName("row-content")[0];
-                const bitBestOrderPrice = parseFloat(bitBestOrder.children[0].innerHTML);
-                if (!buyPrice) {
-                    buyPrice = document.getElementById("FormRow-BUY-price");
-                    buyPriceStep = parseFloat(buyPrice.getAttribute('step'));
-                    buyAmount = document.getElementById("FormRow-BUY-quantity");
-                    buyAmountStepPrecision = buyAmount.getAttribute('step').split('1')[0].replace('.', '').length
-                }
-                let buyOrderPrice = bitBestOrderPrice;
-                if (checkboxS.checked) {
-                    buyOrderPrice = buyOrderPrice + buyPriceStep;
-                }
-                buyPrice.value = buyOrderPrice;
-                console.log('buy price order ', buyPrice.value);
-
-                const buyPercent = parseFloat(document.getElementsByClassName("bn-slider-radio-tooltip")[0].innerHTML.trimEnd("%"));
-                const buyAval = parseFloat(document.getElementsByClassName("proInnerForm")[0].children[1].children[0].lastChild.children[0].innerHTML.split());
-                buyAmount.value = percentage(buyPercent, buyAval / buyOrderPrice).toFixed(buyAmountStepPrecision);
-                console.log('buyPercent', buyPercent);
-                console.log('buyAval', buyAval);
-                console.log('buyAmount', buyAmount.value);
-                console.log('buyAmountStepPrecision', buyAmountStepPrecision)
+        const buyCallback = function (mutationsList) {
+            if (!checkboxB.checked) return
+            const bitBestOrder = bitOrders.getElementsByClassName("row-content")[0];
+            const bitBestOrderPrice = parseFloat(bitBestOrder.children[0].innerHTML);
+            if (!buyPrice) {
+                buyPrice = document.getElementById("FormRow-BUY-price");
+                buyPriceStep = parseFloat(buyPrice.getAttribute('step'));
+                buyAmount = document.getElementById("FormRow-BUY-quantity");
+                buyAmountStepPrecision = buyAmount.getAttribute('step').split('1')[0].replace('.', '').length
             }
-        });
+            let buyOrderPrice = bitBestOrderPrice;
+            if (checkboxS.checked) {
+                buyOrderPrice += buyPriceStep;
+            }
+            buyPrice.value = buyOrderPrice;
+            console.log('buy price', buyOrderPrice);
+
+            const buyPercent = parseFloat(document.getElementsByClassName("bn-slider-radio-tooltip")[0].innerHTML.trimEnd("%"));
+            const buyAvailable = parseFloat(document.getElementsByClassName("proInnerForm")[0].children[1].children[0].lastChild.children[0].innerHTML.split());
+            buyAmount.value = percentage(buyPercent, buyAvailable / buyOrderPrice).toFixed(buyAmountStepPrecision);
+            console.log('buy available', buyAvailable);
+            console.log('buy percent', buyPercent);
+            console.log('buy amount', buyAmount.value);
+        }
+
+        var bitOrdersObserver = new MutationObserver(buyCallback);
         bitOrdersObserver.observe(bitOrders, { attributes: true, childList: true, subtree: true });
 
-        var askOrdersObserver = new MutationObserver(function (mutationsList) {
-            if (checkboxA.checked) {
-                const rows = askOrders.getElementsByClassName("row-content");
-                const askBestOrder = rows[rows.length - 1];
-                const askBestOrderPrice = parseFloat(askBestOrder.children[0].innerHTML);
-                if (!sellPrice) {
-                    sellPrice = document.getElementById("FormRow-SELL-price");
-                    sellPriceStep = parseFloat(sellPrice.getAttribute('step'));
-                }
-                let sellOrderPrice = askBestOrderPrice;
-                if (checkboxS.checked) {
-                    sellOrderPrice = sellOrderPrice + sellPriceStep;
-                }
-                sellPrice.value = sellOrderPrice;
-                console.log('sell order ', sellPrice.value);
+        const sellCallback = function (mutationsList) {
+            if (!checkboxA.checked) return
+            const rows = askOrders.getElementsByClassName("row-content");
+            const askBestOrder = rows[rows.length - 1];
+            const askBestOrderPrice = parseFloat(askBestOrder.children[0].innerHTML);
+            if (!sellPrice) {
+                sellPrice = document.getElementById("FormRow-SELL-price");
+                sellPriceStep = parseFloat(sellPrice.getAttribute('step'));
             }
-        });
+            let sellOrderPrice = askBestOrderPrice;
+            if (checkboxS.checked) {
+                sellOrderPrice += sellPriceStep;
+            }
+            sellPrice.value = sellOrderPrice;
+            console.log('sell price', sellOrderPrice);
+        }
+
+        var askOrdersObserver = new MutationObserver(sellCallback);
         askOrdersObserver.observe(askOrders, { attributes: true, childList: true, subtree: true });
     });
 })();
