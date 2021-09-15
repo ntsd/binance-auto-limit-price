@@ -30,8 +30,6 @@ function percentage(percent, total) {
         let buyAmountStepPrecision;
         let sellPrice;
         let sellPriceStep;
-        let sellAmount;
-        let sellAmountStepPrecision;
 
         // Add UI
         const orderForm = document.getElementsByName("orderform")[0];
@@ -115,8 +113,6 @@ function percentage(percent, total) {
                 if (!sellPrice) {
                     sellPrice = document.getElementById("FormRow-SELL-price");
                     sellPriceStep = parseFloat(sellPrice.getAttribute('step'));
-                    sellAmount = document.getElementById("FormRow-SELL-quantity");
-                    sellAmountStepPrecision = sellAmount.getAttribute('step').split('1')[0].replace('.', '').length
                 }
                 let sellOrderPrice = askBestOrderPrice;
                 if (checkboxS.checked) {
@@ -124,14 +120,6 @@ function percentage(percent, total) {
                 }
                 sellPrice.value = sellOrderPrice;
                 console.log('sell order ', sellPrice.value);
-
-                const sellPercent = parseFloat(document.getElementsByClassName("bn-slider-radio-tooltip")[1].innerHTML.trimEnd("%"));
-                const sellAval = parseFloat(document.getElementsByClassName("proInnerForm")[1].children[1].children[0].lastChild.children[0].innerHTML.split());
-                sellAmount.value = percentage(sellPercent, sellAval).toFixed(sellAmountStepPrecision);
-                console.log('sellPercent', sellPercent);
-                console.log('sellAval', sellAval);
-                console.log('sellAmount', sellAmount.value);
-                console.log('sellAmountStepPrecision', sellAmountStepPrecision)
             }
         });
         askOrdersObserver.observe(askOrders, { attributes: true, childList: true, subtree: true });
