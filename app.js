@@ -2,7 +2,7 @@
 // @name         binance-auto-limit-price
 // @namespace    http://ntsd.dev
 // @version      0.1
-// @description  Auto change price and abount to market price for limit position
+// @description  A Binance extension to auto change limit price to the best ask/bid orders.
 // @author       ntsd
 // @match        https://www.binance.com/en/trade/*?layout=pro
 // @icon         https://www.google.com/s2/favicons?domain=binance.com
