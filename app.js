@@ -26,10 +26,12 @@ function percentage(percent, total) {
         const askOrders = document.getElementsByClassName("orderbook-ask")[0];
         let buyPrice;
         let buyPriceStep;
+        let buyPriceStepPrecision;
         let buyAmount;
         let buyAmountStepPrecision;
         let sellPrice;
         let sellPriceStep;
+        let sellPriceStepPrecision;
 
         // Add UI
         const orderForm = document.getElementsByName("orderform")[0];
@@ -84,6 +86,7 @@ function percentage(percent, total) {
             if (!buyPrice) {
                 buyPrice = document.getElementById("FormRow-BUY-price");
                 buyPriceStep = parseFloat(buyPrice.getAttribute('step'));
+                buyPriceStepPrecision = buyPrice.getAttribute('step').split('1')[0].replace('.', '').length
                 buyAmount = document.getElementById("FormRow-BUY-quantity");
                 buyAmountStepPrecision = buyAmount.getAttribute('step').split('1')[0].replace('.', '').length
             }
@@ -91,8 +94,8 @@ function percentage(percent, total) {
             if (checkboxS.checked) {
                 buyOrderPrice += buyPriceStep;
             }
-            buyPrice.value = buyOrderPrice;
-            console.log('buy price', buyOrderPrice);
+            buyPrice.value = buyOrderPrice.toFixed(buyPriceStepPrecision);
+            console.log('buy price', buyPrice.value);
 
             const buyPercent = parseFloat(document.getElementsByClassName("bn-slider-radio-tooltip")[0].innerHTML.trimEnd("%"));
             const buyAvailable = parseFloat(document.getElementsByClassName("proInnerForm")[0].children[1].children[0].lastChild.children[0].innerHTML.split());
@@ -113,13 +116,14 @@ function percentage(percent, total) {
             if (!sellPrice) {
                 sellPrice = document.getElementById("FormRow-SELL-price");
                 sellPriceStep = parseFloat(sellPrice.getAttribute('step'));
+                sellPriceStepPrecision = sellPrice.getAttribute('step').split('1')[0].replace('.', '').length
             }
             let sellOrderPrice = askBestOrderPrice;
             if (checkboxS.checked) {
                 sellOrderPrice -= sellPriceStep;
             }
-            sellPrice.value = sellOrderPrice;
-            console.log('sell price', sellOrderPrice);
+            sellPrice.value = sellOrderPrice.toFixed(sellPriceStepPrecision);
+            console.log('sell price', sellPrice.value);
         }
 
         var askOrdersObserver = new MutationObserver(sellCallback);
